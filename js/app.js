@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
           let firstPlatform = platforms[0].visual;
           firstPlatform.classList.remove("platform");
           platforms.shift();
+          console.log(platforms);
           score++;
           var newPlatform = new Platform(600);
           platforms.push(newPlatform);
@@ -81,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       platforms.forEach((platform) => {
         if (
           doodlerBottomSpace >= platform.bottom &&
-          doodlerBottomSpace <= (platform.bottom + 15) &&
+          doodlerBottomSpace <= platform.bottom + 15 &&
           doodlerLeftSpace + 60 >= platform.left &&
           doodlerLeftSpace <= platform.left + 85 &&
           !isJumping
@@ -94,84 +95,86 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }, 20);
+  }
 
-    function jump() {
-      clearInterval(downTimerId);
-      isJumping = true;
-      upTimerId = setInterval(function () {
-        console.log(startPoint);
-        console.log("1", doodlerBottomSpace);
-        doodlerBottomSpace += 20;
-        doodler.style.bottom = doodlerBottomSpace + "px";
-        console.log("2", doodlerBottomSpace);
-        console.log("s", starPoint);
-        if (doodlerBottomSpace > (startPoint + 200)) {
-          fall();
-          isJumping = false;
-        }
-      }, 30);
-    }
-
-    function moveLeft() {
-      if (isGoingRight) {
-        clearInterval(rightTimerId);
-        isGoingRight = false;
+  function jump() {
+    clearInterval(downTimerId);
+    isJumping = true;
+    upTimerId = setInterval(function () {
+      console.log(startPoint);
+      console.log("1", doodlerBottomSpace);
+      doodlerBottomSpace += 20;
+      doodler.style.bottom = doodlerBottomSpace + "px";
+      console.log("2", doodlerBottomSpace);
+      console.log("s", startPoint);
+      if (doodlerBottomSpace > startPoint + 200) {
+        fall();
+        isJumping = false;
       }
-      isGoingLeft = true;
-      leftTimerId = setInterval(function () {
-        if (doodlerLeftSpace >= 0) {
-          console.log("going left");
-          doodlerLeftSpace -= 5;
-          doodler.style.left = doodlerLeftSpace + "px";
-        } else moveRight();
-      }, 20);
-    }
+    }, 30);
+  }
 
-    function moveRight() {
-      if (isGoingLeft) {
-        clearInterval(leftTimerId);
-        isGoingLeft = false;
-      }
-      isGoingRight = true;
-      rightTimerId = setInterval(function () {
-        if (doodlerLeftSpace <= 313) {
-          console.log("going right");
-          doodlerLeftSpace += 5;
-          doodler.style.left = doodlerLeftSpace + "px";
-        } else moveLeft();
-      }, 20);
-    }
-    
-    function moveStraight() {
-      isGoingLeft = false;
+  function moveLeft() {
+    if (isGoingRight) {
+      clearInterval(rightTimerId);
       isGoingRight = false;
-      clearInterval(leftTimerId);
-      clearInterval(rightTimerId);
     }
-    // assign functions to keyCodes
-    function control(e) {
-      doodler.style.buttom = doodlerBottomSpace + "px";
-      if (e.key === "ArrowLeft") {
-        moveLeft();
-      } else if (e.key === "ArrowRight") {
-        moveRight();
-      } else if (e.key === "ArrowUp") {
-        moveStraight();
-      }
-    }
+    isGoingLeft = true;
+    leftTimerId = setInterval(function () {
+      if (doodlerLeftSpace >= 0) {
+        console.log("going left");
+        doodlerLeftSpace -= 5;
+        doodler.style.left = doodlerLeftSpace + "px";
+      } else moveRight();
+    }, 20);
+  }
 
-    function gameOver() {
-      isGameOver = true;
-      while (grid.firstChild) {
-        console.log("remove");
-        grid.removeChild(grid.firstChild);
-      }
-      grid.innerHTML = score;
-      clearInterval(upTimerId);
-      clearInterval(downTimerId);
+  function moveRight() {
+    if (isGoingLeft) {
       clearInterval(leftTimerId);
-      clearInterval(rightTimerId);
+      isGoingLeft = false;
     }
+    isGoingRight = true;
+    rightTimerId = setInterval(function () {
+      //changed to 313 to fit doodle image
+      if (doodlerLeftSpace <= 313) {
+        console.log("going right");
+        doodlerLeftSpace += 5;
+        doodler.style.left = doodlerLeftSpace + "px";
+      } else moveLeft();
+    }, 20);
+  }
+
+  function moveStraight() {
+    isGoingLeft = false;
+    isGoingRight = false;
+    clearInterval(leftTimerId);
+    clearInterval(rightTimerId);
+  }
+
+  //assign functions to keyCodes
+  function control(e) {
+    doodler.style.bottom = doodlerBottomSpace + "px";
+    if (e.key === "ArrowLeft") {
+      moveLeft();
+    } else if (e.key === "ArrowRight") {
+      moveRight();
+    } else if (e.key === "ArrowUp") {
+      moveStraight();
+    }
+  }
+
+  function gameOver() {
+    isGameOver = true;
+    while (grid.firstChild) {
+      console.log("remove");
+      grid.removeChild(grid.firstChild);
+    }
+    grid.innerHTML = score;
+    clearInterval(upTimerId);
+    clearInterval(downTimerId);
+    clearInterval(leftTimerId);
+    clearInterval(rightTimerId);
   }
 
   function start() {
@@ -183,6 +186,5 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("keyup", control);
     }
   }
-
   start();
 });
